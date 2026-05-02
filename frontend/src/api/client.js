@@ -1,11 +1,40 @@
+import axios from "axios";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-export async function getHealth() {
-  const response = await fetch(`${API_BASE_URL}/health`);
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+});
 
-  if (!response.ok) {
-    throw new Error("Backend health check failed");
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
 
-  return response.json();
+export async function getProducts(params = {}, config = {}) {
+  const response = await api.get("/api/products", { ...config, params });
+  return response.data;
+}
+
+export async function getProduct(id) {
+  const response = await api.get(`/api/products/${id}`);
+  return response.data;
+}
+
+export async function login(credentials) {
+  const response = await api.post("/api/auth/login", credentials);
+  return response.data;
+}
+
+export async function register(payload) {
+  const response = await api.post("/api/auth/register", payload);
+  return response.data;
+}
+
+export async function getMe() {
+  const response = await api.get("/api/auth/me");
+  return response.data;
 }

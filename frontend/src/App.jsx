@@ -1,34 +1,47 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import { getHealth } from "./api/client.js";
+import Footer from "./components/Footer.jsx";
+import Navbar from "./components/Navbar.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { CartProvider } from "./context/CartContext.jsx";
+import Cart from "./pages/Cart.jsx";
+import Catalog from "./pages/Catalog.jsx";
+import CheckoutCancel from "./pages/CheckoutCancel.jsx";
+import CheckoutSuccess from "./pages/CheckoutSuccess.jsx";
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import ProductDetails from "./pages/ProductDetails.jsx";
+import Profile from "./pages/Profile.jsx";
+import Register from "./pages/Register.jsx";
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState("checking");
-
-  useEffect(() => {
-    getHealth()
-      .then((data) => setApiStatus(data.status))
-      .catch(() => setApiStatus("offline"));
-  }, []);
-
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
-      <section className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-12">
-        <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">
-          Educational ecommerce demo
-        </p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-6xl">
-          Flimod Catalog Demo
-        </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-700">
-          A full-stack catalog foundation using React, Vite, TailwindCSS,
-          FastAPI, PostgreSQL, SQLAlchemy, and Pydantic.
-        </p>
-        <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-zinc-600">Backend health</p>
-          <p className="mt-1 text-2xl font-semibold capitalize">{apiStatus}</p>
-        </div>
-      </section>
-    </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <div className="flex min-h-screen flex-col bg-white text-zinc-950">
+            <Navbar />
+            <div className="flex-1">
+              <Routes>
+                <Route element={<Home />} path="/" />
+                <Route element={<Catalog />} path="/catalog" />
+                <Route element={<ProductDetails />} path="/products/:id" />
+                <Route element={<Cart />} path="/cart" />
+                <Route element={<Login />} path="/login" />
+                <Route element={<Register />} path="/register" />
+                <Route element={<CheckoutSuccess />} path="/checkout/success" />
+                <Route element={<CheckoutCancel />} path="/checkout/cancel" />
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<Profile />} path="/profile" />
+                </Route>
+                <Route element={<Navigate replace to="/" />} path="*" />
+              </Routes>
+            </div>
+            <Footer />
+          </div>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

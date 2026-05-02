@@ -2,6 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: white;
+  }
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-5;
+  }
+
+  .btn-primary {
+    @apply inline-flex h-11 items-center justify-center border border-black bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex h-11 items-center justify-center border border-zinc-300 bg-white px-5 text-sm font-medium text-black transition hover:border-black disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-inverted {
+    @apply inline-flex h-11 items-center justify-center border border-white bg-white px-5 text-sm font-medium text-black transition hover:bg-zinc-200;
+  }
+
+  .btn-ghost-dark {
+    @apply inline-flex h-11 items-center justify-center border border-zinc-700 bg-transparent px-5 text-sm font-medium text-white transition hover:border-white;
+  }
+
+  .input {
+    @apply w-full border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-black;
+  }
+
+  .label {
+    @apply mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-zinc-500;
+  }
+}
+
 body {
   margin: 0;
 }
