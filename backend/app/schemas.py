@@ -22,7 +22,10 @@ class UserRead(UserBase):
 
 class ProductBase(BaseModel):
     external_id: str | None = None
+    source: str = "manual"
     name: str
+    brand: str | None = None
+    category: str | None = None
     description: str | None = None
     image_url: str | None = None
     price: Decimal = Field(ge=0)
@@ -39,6 +42,13 @@ class ProductRead(ProductBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProductSyncResult(BaseModel):
+    fetched: int
+    saved: int
+    skipped: int
+    total_products: int
 
 
 class OrderItemBase(BaseModel):
@@ -65,12 +75,12 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(OrderBase):
-    items: list[OrderItemCreate] = []
+    items: list[OrderItemCreate] = Field(default_factory=list)
 
 
 class OrderRead(OrderBase):
     id: int
     created_at: datetime
-    items: list[OrderItemRead] = []
+    items: list[OrderItemRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)

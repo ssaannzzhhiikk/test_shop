@@ -56,6 +56,41 @@ The backend health endpoint is available at:
 http://localhost:8000/health
 ```
 
+## Product Catalog Sync
+
+The backend can sync demo product data from the public external catalog API:
+
+```text
+https://flimod.com/api/v1/catalog/women
+```
+
+Default sync parameters:
+
+```text
+categories=женщины
+offset=0
+limit=24
+priceMin=5000
+priceMax=10000000
+sort=date,desc
+```
+
+Start PostgreSQL and the backend, then run:
+
+```bash
+curl -X POST http://localhost:8000/api/products/sync-external
+```
+
+Catalog endpoints:
+
+```text
+GET  http://localhost:8000/api/products
+GET  http://localhost:8000/api/products/{id}
+POST http://localhost:8000/api/products/sync-external
+```
+
+`GET /api/products` supports `search`, `brand`, `category`, `priceMin`, `priceMax`, `offset`, `limit`, and `sort`. If the local database has fewer than 20 products, the API will try to sync from the external catalog before returning results.
+
 ## Database Setup
 
 Start PostgreSQL:

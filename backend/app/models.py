@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -21,10 +21,14 @@ class User(Base):
 
 class Product(Base):
     __tablename__ = "products"
+    __table_args__ = (UniqueConstraint("external_id", "source", name="uq_products_external_source"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    external_id: Mapped[str | None] = mapped_column(String(255), unique=True, index=True)
+    external_id: Mapped[str | None] = mapped_column(String(255), index=True)
+    source: Mapped[str] = mapped_column(String(50), default="manual", nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    brand: Mapped[str | None] = mapped_column(String(255), index=True)
+    category: Mapped[str | None] = mapped_column(String(255), index=True)
     description: Mapped[str | None] = mapped_column(Text)
     image_url: Mapped[str | None] = mapped_column(String(1024))
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
