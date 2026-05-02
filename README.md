@@ -1,131 +1,76 @@
 # Flimod Catalog Demo
 
-Educational full-stack ecommerce catalog demo built with React, Vite, TailwindCSS, FastAPI, PostgreSQL, SQLAlchemy, and Pydantic.
+Educational full-stack ecommerce catalog demo built with React, Vite, TailwindCSS, FastAPI, PostgreSQL, SQLAlchemy, Pydantic, and Stripe Checkout test mode.
 
-This project does not copy Flimod branding, logos, exact UI, or claim any ownership. It is a demo scaffold that may later use a public external catalog API only as a product data source.
+This project does not copy Flimod branding, logos, exact UI, or claim any ownership. It may use a public external catalog API only as a product data source.
 
 ## Stack
 
-- Frontend: React, Vite, JavaScript/JSX, TailwindCSS
-- Backend: FastAPI, PostgreSQL, SQLAlchemy, Pydantic
+- Frontend: React, Vite, JavaScript/JSX, TailwindCSS, React Router, Axios
+- Backend: FastAPI, PostgreSQL, SQLAlchemy, Pydantic, JWT auth
 - Payments: Stripe Checkout test mode
 
-## Project Structure
+## Environment Files
 
-```text
-backend/
-  app/
-    main.py
-    config.py
-    database.py
-    models.py
-    schemas.py
-    dependencies.py
-    routers/
-    services/
-  requirements.txt
-  .env.example
-frontend/
-  src/
-    main.jsx
-    App.jsx
-    api/
-    context/
-    pages/
-    components/
-  package.json
-  .env.example
-docker-compose.yml
-README.md
+Backend:
+
+```bash
+cd backend
+copy .env.example .env
 ```
 
-## Backend Setup
+Frontend:
+
+```bash
+cd frontend
+copy .env.example .env
+```
+
+Default local URLs:
+
+```text
+Frontend: http://localhost:5173
+Backend:  http://localhost:8000
+Database: postgresql+psycopg://postgres:postgres@localhost:5432/flimod_catalog_demo
+```
+
+## Run Commands
+
+Start PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+Install and run the backend:
 
 ```bash
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env
+python -m compileall app
 uvicorn app.main:app --reload
 ```
 
-The backend health endpoint is available at:
-
-```text
-http://localhost:8000/health
-```
-
-## Product Catalog Sync
-
-The backend can sync demo product data from the public external catalog API:
-
-```text
-https://flimod.com/api/v1/catalog/women
-```
-
-Default sync parameters:
-
-```text
-categories=женщины
-offset=0
-limit=24
-priceMin=5000
-priceMax=10000000
-sort=date,desc
-```
-
-Manual catalog sync is admin-only. Start PostgreSQL and the backend, log in as an admin, then run:
+Install and run the frontend:
 
 ```bash
-curl -X POST http://localhost:8000/api/products/sync-external ^
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+cd frontend
+npm install
+npm run dev
 ```
 
-Catalog endpoints:
-
-```text
-GET  http://localhost:8000/api/products
-GET  http://localhost:8000/api/products/{id}
-POST http://localhost:8000/api/products/sync-external
-```
-
-`GET /api/products` supports `search`, `brand`, `category`, `priceMin`, `priceMax`, `offset`, `limit`, and `sort`. If the local database has fewer than 20 products, the API will try to sync from the external catalog before returning results.
-
-## Authentication
-
-Auth endpoints:
-
-```text
-POST http://localhost:8000/api/auth/register
-POST http://localhost:8000/api/auth/login
-GET  http://localhost:8000/api/auth/me
-```
-
-Register a user:
+If PowerShell blocks `npm.ps1`, use:
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/register ^
-  -H "Content-Type: application/json" ^
-  -d "{\"email\":\"user@example.com\",\"password\":\"password123\",\"full_name\":\"Demo User\"}"
+npm.cmd install
+npm.cmd run dev
 ```
 
-Log in:
+## Seed Admin And Sync Products
 
-```bash
-curl -X POST http://localhost:8000/api/auth/login ^
-  -H "Content-Type: application/json" ^
-  -d "{\"email\":\"user@example.com\",\"password\":\"password123\"}"
-```
-
-Use the returned `access_token` with `/me`:
-
-```bash
-curl http://localhost:8000/api/auth/me ^
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-For local development, create an admin user on backend startup by copying `backend/.env.example` to `backend/.env` and setting:
+Create a local admin user by setting these values in `backend/.env`:
 
 ```env
 CREATE_DEV_ADMIN=true
@@ -134,22 +79,75 @@ DEV_ADMIN_PASSWORD=change-me-admin-password
 DEV_ADMIN_FULL_NAME=Local Admin
 ```
 
-Restart the backend, then log in with those credentials and use that token for admin-only endpoints.
+Restart the backend, then log in:
 
-## Orders And Stripe Checkout
-
-Order and payment endpoints:
-
-```text
-POST http://localhost:8000/api/orders
-GET  http://localhost:8000/api/orders/me
-POST http://localhost:8000/api/payments/create-checkout-session
-POST http://localhost:8000/api/payments/webhook
+```bash
+curl -X POST http://localhost:8000/api/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"admin@example.com\",\"password\":\"change-me-admin-password\"}"
 ```
 
-Stripe is used in test mode only. The app redirects customers to Stripe-hosted Checkout and does not collect card details manually.
+Use the returned token to sync external catalog products:
 
-Add these values to `backend/.env`:
+```bash
+curl -X POST http://localhost:8000/api/products/sync-external ^
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+`GET /api/products` also auto-syncs from the external catalog if the database has fewer than 20 products.
+
+External catalog defaults:
+
+```text
+https://flimod.com/api/v1/catalog/women
+categories=женщины
+offset=0
+limit=24
+priceMin=5000
+priceMax=10000000
+sort=date,desc
+```
+
+## API Endpoints
+
+Health:
+
+```text
+GET /health
+```
+
+Auth:
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+GET  /api/auth/me
+```
+
+Products:
+
+```text
+GET  /api/products
+GET  /api/products/{id}
+POST /api/products/sync-external
+```
+
+Orders and payments:
+
+```text
+POST /api/orders
+GET  /api/orders/me
+POST /api/payments/create-checkout-session
+POST /api/payments/webhook
+```
+
+`GET /api/products` supports `search`, `brand`, `category`, `priceMin`, `priceMax`, `offset`, `limit`, and `sort`.
+
+## Stripe Test Mode
+
+The app uses Stripe-hosted Checkout only. It does not collect card data manually.
+
+Add test credentials to `backend/.env`:
 
 ```env
 STRIPE_SECRET_KEY=sk_test_your_key
@@ -158,54 +156,41 @@ FRONTEND_URL=http://localhost:5173
 BACKEND_URL=http://localhost:8000
 ```
 
-Install backend dependencies after adding Stripe:
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-For local webhook testing, install and log in to the Stripe CLI, then forward Checkout events:
+Forward local webhook events with the Stripe CLI:
 
 ```bash
 stripe listen --events checkout.session.completed --forward-to localhost:8000/api/payments/webhook
 ```
 
-Copy the `whsec_...` value printed by the Stripe CLI into `STRIPE_WEBHOOK_SECRET`, then restart the backend. Use Stripe test card `4242 4242 4242 4242` with any future expiry date and CVC on the hosted Checkout page.
+Copy the `whsec_...` value printed by the CLI into `STRIPE_WEBHOOK_SECRET`, then restart FastAPI. Use Stripe test card `4242 4242 4242 4242` with any future expiry date and CVC.
 
-## Database Setup
-
-Start PostgreSQL:
-
-```bash
-docker compose up -d postgres
-```
-
-The default database URL is:
+## Frontend Routes
 
 ```text
-postgresql+psycopg://postgres:postgres@localhost:5432/flimod_catalog_demo
+/
+/catalog
+/products/:id
+/cart
+/login
+/register
+/profile
+/checkout/success
+/checkout/cancel
 ```
 
-This demo uses `create_all` on startup instead of migrations. If you already started an older local database before schema fields were added, recreate the local Postgres volume or add proper migrations before running the updated backend.
+## Common Troubleshooting
 
-## Frontend Setup
-
-```bash
-cd frontend
-npm install
-copy .env.example .env
-npm run dev
-```
-
-The frontend runs at:
-
-```text
-http://localhost:5173
-```
+- `python` is not recognized: install Python 3.11+ and enable "Add Python to PATH", then reopen the terminal.
+- `npm.ps1 cannot be loaded`: run `npm.cmd install` and `npm.cmd run dev`, or change your PowerShell execution policy for local scripts.
+- Backend CORS error: open the frontend at `http://localhost:5173` or keep `BACKEND_CORS_ORIGINS` including both `http://localhost:5173` and `http://127.0.0.1:5173`.
+- Database connection refused: run `docker compose up -d postgres` and verify port `5432` is free.
+- Missing columns after code changes: this demo uses `create_all`, not migrations. Recreate the local Postgres volume or add Alembic migrations before continuing.
+- External catalog returns no products: check internet access and try `POST /api/products/sync-external` with an admin token.
+- Stripe Checkout fails: verify `STRIPE_SECRET_KEY` starts with `sk_test_`, restart the backend, and check the backend logs.
+- Order stays pending after payment: run the Stripe CLI webhook forwarder and make sure `STRIPE_WEBHOOK_SECRET` matches the printed `whsec_...` value.
 
 ## Notes
 
-- Payment is intentionally not implemented yet.
-- Database tables are created on FastAPI startup for the demo skeleton.
-- Use migrations such as Alembic before turning this into a production-style app.
+- Database tables are created on FastAPI startup for this demo.
+- Use Alembic migrations before treating this as a production-style app.
+- Footer disclaimer in the UI states that this is an educational demo and is not affiliated with Flimod.

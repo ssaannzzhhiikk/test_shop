@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Flimod Catalog Demo API"
     DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@localhost:5432/flimod_catalog_demo"
-    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     SECRET_KEY: str = "change-me-in-local-env"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     CREATE_DEV_ADMIN: bool = False

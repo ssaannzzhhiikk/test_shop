@@ -4,6 +4,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from httpx import HTTPError
 from sqlalchemy import asc, desc, func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_admin_user, get_db
@@ -106,8 +107,12 @@ async def _sync_external_products(db: Session) -> ProductSyncResult:
             skipped += 1
             continue
 
-        db.add(Product(**product_data))
-        saved += 1
+        try:
+            with db.begin_nested():
+                db.add(Product(**product_data))
+            saved += 1
+        except IntegrityError:
+            skipped += 1
 
     db.commit()
     total_products = db.scalar(select(func.count()).select_from(Product)) or 0

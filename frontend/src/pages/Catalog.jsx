@@ -32,8 +32,16 @@ export default function Catalog() {
 
     getProducts(params, { signal: controller.signal })
       .then(setProducts)
-      .catch(() => setError("We could not load the catalog. Please make sure the backend is running."))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setError("We could not load the catalog. Please make sure the backend is running.");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      });
 
     return () => controller.abort();
   }, [filters]);
