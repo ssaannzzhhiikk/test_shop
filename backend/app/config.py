@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     DEV_ADMIN_EMAIL: str | None = None
     DEV_ADMIN_PASSWORD: str | None = None
     DEV_ADMIN_FULL_NAME: str = "Local Admin"
+    STRIPE_SECRET_KEY: str | None = None
+    STRIPE_WEBHOOK_SECRET: str | None = None
+    FRONTEND_URL: str = "http://localhost:5173"
+    BACKEND_URL: str = "http://localhost:8000"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

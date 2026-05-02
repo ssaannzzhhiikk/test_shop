@@ -7,7 +7,7 @@ export default function CheckoutCancel() {
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">Checkout</p>
         <h1 className="mt-3 text-4xl font-semibold">Checkout canceled</h1>
         <p className="mt-4 max-w-xl text-zinc-600">
-          Your cart remains available. Payment is not implemented in this educational demo yet.
+          Your cart remains available. You can return to checkout whenever you are ready.
         </p>
         <Link className="btn-primary mt-8 inline-flex" to="/cart">
           Return to cart

@@ -38,3 +38,13 @@ export async function getMe() {
   const response = await api.get("/api/auth/me");
   return response.data;
 }
+
+export async function createCheckoutSession(items) {
+  const response = await api.post("/api/payments/create-checkout-session", { items });
+  return response.data;
+}
+
+export async function getMyOrders() {
+  const response = await api.get("/api/orders/me");
+  return response.data;
+}

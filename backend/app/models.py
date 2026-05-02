@@ -50,6 +50,8 @@ class Order(Base):
     status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
     total_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), default="USD", nullable=False)
+    stripe_checkout_session_id: Mapped[str | None] = mapped_column(String(255), unique=True, index=True)
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user: Mapped["User"] = relationship(back_populates="orders")

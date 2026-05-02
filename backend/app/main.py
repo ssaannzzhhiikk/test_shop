@@ -5,7 +5,7 @@ from app import models
 from app.config import settings
 from app.database import Base, SessionLocal, engine
 from app.models import User
-from app.routers import auth, products
+from app.routers import auth, orders, payments, products
 from app.services.security import get_password_hash
 
 _ = models
@@ -26,6 +26,8 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(products.router)
+app.include_router(orders.router)
+app.include_router(payments.router)
 
 
 @app.on_event("startup")

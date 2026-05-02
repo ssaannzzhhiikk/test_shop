@@ -8,7 +8,7 @@ This project does not copy Flimod branding, logos, exact UI, or claim any owners
 
 - Frontend: React, Vite, JavaScript/JSX, TailwindCSS
 - Backend: FastAPI, PostgreSQL, SQLAlchemy, Pydantic
-- Future payment integration: Stripe Checkout test mode
+- Payments: Stripe Checkout test mode
 
 ## Project Structure
 
@@ -136,6 +136,43 @@ DEV_ADMIN_FULL_NAME=Local Admin
 
 Restart the backend, then log in with those credentials and use that token for admin-only endpoints.
 
+## Orders And Stripe Checkout
+
+Order and payment endpoints:
+
+```text
+POST http://localhost:8000/api/orders
+GET  http://localhost:8000/api/orders/me
+POST http://localhost:8000/api/payments/create-checkout-session
+POST http://localhost:8000/api/payments/webhook
+```
+
+Stripe is used in test mode only. The app redirects customers to Stripe-hosted Checkout and does not collect card details manually.
+
+Add these values to `backend/.env`:
+
+```env
+STRIPE_SECRET_KEY=sk_test_your_key
+STRIPE_WEBHOOK_SECRET=whsec_your_local_webhook_secret
+FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:8000
+```
+
+Install backend dependencies after adding Stripe:
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+For local webhook testing, install and log in to the Stripe CLI, then forward Checkout events:
+
+```bash
+stripe listen --events checkout.session.completed --forward-to localhost:8000/api/payments/webhook
+```
+
+Copy the `whsec_...` value printed by the Stripe CLI into `STRIPE_WEBHOOK_SECRET`, then restart the backend. Use Stripe test card `4242 4242 4242 4242` with any future expiry date and CVC on the hosted Checkout page.
+
 ## Database Setup
 
 Start PostgreSQL:
@@ -150,7 +187,7 @@ The default database URL is:
 postgresql+psycopg://postgres:postgres@localhost:5432/flimod_catalog_demo
 ```
 
-This demo uses `create_all` on startup instead of migrations. If you already started an older local database before the auth fields were added, recreate the local Postgres volume or add a proper migration before running the updated backend.
+This demo uses `create_all` on startup instead of migrations. If you already started an older local database before schema fields were added, recreate the local Postgres volume or add proper migrations before running the updated backend.
 
 ## Frontend Setup
 

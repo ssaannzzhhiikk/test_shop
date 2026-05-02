@@ -1,10 +1,36 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
+import { createCheckoutSession } from "../api/client.js";
+import { useAuth } from "../context/AuthContext.jsx";
 import { useCart } from "../context/CartContext.jsx";
 import { formatMoney } from "../utils/format.js";
 
 export default function Cart() {
-  const { clearCart, items, removeFromCart, subtotal, updateQuantity } = useCart();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { items, removeFromCart, subtotal, updateQuantity } = useCart();
+  const [checkoutError, setCheckoutError] = useState("");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  async function handleCheckout() {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: { pathname: "/cart" } } });
+      return;
+    }
+
+    setCheckoutLoading(true);
+    setCheckoutError("");
+
+    try {
+      const payload = items.map((item) => ({ product_id: item.id, quantity: item.quantity }));
+      const data = await createCheckoutSession(payload);
+      window.location.assign(data.checkout_url);
+    } catch {
+      setCheckoutError("Checkout could not be started. Check your backend and Stripe test keys.");
+      setCheckoutLoading(false);
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -57,14 +83,16 @@ export default function Cart() {
             <strong>{formatMoney(subtotal, items[0]?.currency)}</strong>
           </div>
           <p className="mt-4 text-sm leading-6 text-zinc-500">
-            Stripe Checkout is intentionally not implemented yet. These buttons are demo placeholders.
+            Payment is handled by Stripe Checkout test mode. Card details are collected only on Stripe's
+            hosted page.
           </p>
+          {checkoutError ? <p className="mt-4 text-sm text-red-700">{checkoutError}</p> : null}
           <div className="mt-6 grid gap-3">
-            <Link className="btn-primary text-center" to="/checkout/success" onClick={clearCart}>
-              Simulate success
-            </Link>
+            <button className="btn-primary" disabled={checkoutLoading} onClick={handleCheckout} type="button">
+              {checkoutLoading ? "Starting checkout..." : "Checkout with Stripe"}
+            </button>
             <Link className="btn-secondary text-center" to="/checkout/cancel">
-              Simulate cancel
+              Continue later
             </Link>
           </div>
         </aside>

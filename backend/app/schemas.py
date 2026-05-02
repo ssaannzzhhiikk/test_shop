@@ -75,8 +75,14 @@ class OrderItemCreate(OrderItemBase):
 
 class OrderItemRead(OrderItemBase):
     id: int
+    product: ProductRead | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CartItemInput(BaseModel):
+    product_id: int
+    quantity: int = Field(gt=0, le=99)
 
 
 class OrderBase(BaseModel):
@@ -90,9 +96,28 @@ class OrderCreate(OrderBase):
     items: list[OrderItemCreate] = Field(default_factory=list)
 
 
+class OrderCreateRequest(BaseModel):
+    items: list[CartItemInput] = Field(min_length=1, max_length=100)
+
+
 class OrderRead(OrderBase):
     id: int
+    stripe_checkout_session_id: str | None = None
+    paid_at: datetime | None = None
     created_at: datetime
     items: list[OrderItemRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CheckoutSessionCreate(BaseModel):
+    items: list[CartItemInput] = Field(min_length=1, max_length=100)
+
+
+class CheckoutSessionRead(BaseModel):
+    checkout_url: str
+    order_id: int
+
+
+class WebhookRead(BaseModel):
+    received: bool = True
