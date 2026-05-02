@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { getProducts } from "../api/client.js";
 import FilterSidebar from "../components/FilterSidebar.jsx";

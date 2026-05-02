@@ -46,8 +46,8 @@ Install and run the backend:
 
 ```bash
 cd backend
-python -m venv .venv
-.venv\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 python -m compileall app
 uvicorn app.main:app --reload
