@@ -75,10 +75,11 @@ priceMax=10000000
 sort=date,desc
 ```
 
-Start PostgreSQL and the backend, then run:
+Manual catalog sync is admin-only. Start PostgreSQL and the backend, log in as an admin, then run:
 
 ```bash
-curl -X POST http://localhost:8000/api/products/sync-external
+curl -X POST http://localhost:8000/api/products/sync-external ^
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 Catalog endpoints:
@@ -90,6 +91,50 @@ POST http://localhost:8000/api/products/sync-external
 ```
 
 `GET /api/products` supports `search`, `brand`, `category`, `priceMin`, `priceMax`, `offset`, `limit`, and `sort`. If the local database has fewer than 20 products, the API will try to sync from the external catalog before returning results.
+
+## Authentication
+
+Auth endpoints:
+
+```text
+POST http://localhost:8000/api/auth/register
+POST http://localhost:8000/api/auth/login
+GET  http://localhost:8000/api/auth/me
+```
+
+Register a user:
+
+```bash
+curl -X POST http://localhost:8000/api/auth/register ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"user@example.com\",\"password\":\"password123\",\"full_name\":\"Demo User\"}"
+```
+
+Log in:
+
+```bash
+curl -X POST http://localhost:8000/api/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"user@example.com\",\"password\":\"password123\"}"
+```
+
+Use the returned `access_token` with `/me`:
+
+```bash
+curl http://localhost:8000/api/auth/me ^
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+For local development, create an admin user on backend startup by copying `backend/.env.example` to `backend/.env` and setting:
+
+```env
+CREATE_DEV_ADMIN=true
+DEV_ADMIN_EMAIL=admin@example.com
+DEV_ADMIN_PASSWORD=change-me-admin-password
+DEV_ADMIN_FULL_NAME=Local Admin
+```
+
+Restart the backend, then log in with those credentials and use that token for admin-only endpoints.
 
 ## Database Setup
 
@@ -104,6 +149,8 @@ The default database URL is:
 ```text
 postgresql+psycopg://postgres:postgres@localhost:5432/flimod_catalog_demo
 ```
+
+This demo uses `create_all` on startup instead of migrations. If you already started an older local database before the auth fields were added, recreate the local Postgres volume or add a proper migration before running the updated backend.
 
 ## Frontend Setup
 

@@ -6,8 +6,8 @@ from httpx import HTTPError
 from sqlalchemy import asc, desc, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_db
-from app.models import Product
+from app.dependencies import get_admin_user, get_db
+from app.models import Product, User
 from app.schemas import ProductRead, ProductSyncResult
 from app.services.flimod_client import fetch_flimod_products
 from app.services.product_mapper import FLIMOD_SOURCE, map_external_product
@@ -16,7 +16,10 @@ router = APIRouter(prefix="/api/products", tags=["products"])
 
 
 @router.post("/sync-external", response_model=ProductSyncResult)
-async def sync_external_products(db: Session = Depends(get_db)) -> ProductSyncResult:
+async def sync_external_products(
+    db: Session = Depends(get_db),
+    _admin_user: User = Depends(get_admin_user),
+) -> ProductSyncResult:
     try:
         return await _sync_external_products(db)
     except HTTPError as exc:
