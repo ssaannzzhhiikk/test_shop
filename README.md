@@ -26,6 +26,18 @@ cd frontend
 copy .env.example .env
 ```
 
+For local frontend development, `frontend/.env` should contain:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+For GitHub Pages production builds, set this environment variable in GitHub Actions:
+
+```env
+VITE_API_URL=https://test-shop-h8m4.onrender.com
+```
+
 Default local URLs:
 
 ```text
