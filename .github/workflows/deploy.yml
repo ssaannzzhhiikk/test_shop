@@ -38,6 +38,11 @@ jobs:
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
+        env:
+          VITE_API_URL: https://test-shop-h8m4.onrender.com
+
+      - name: Add SPA fallback for GitHub Pages
+        run: cp ./frontend/dist/index.html ./frontend/dist/404.html
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
