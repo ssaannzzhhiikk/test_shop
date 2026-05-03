@@ -30,9 +30,23 @@ export default function Register() {
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">Account</p>
         <h1 className="mt-3 text-3xl font-semibold">Create account</h1>
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          <Field label="Full name" name="full_name" onChange={setForm} type="text" value={form.full_name} />
-          <Field label="Email" name="email" onChange={setForm} type="email" value={form.email} />
-          <Field label="Password" name="password" onChange={setForm} type="password" value={form.password} />
+          <Field
+            autoComplete="name"
+            label="Full name"
+            name="full_name"
+            onChange={setForm}
+            type="text"
+            value={form.full_name}
+          />
+          <Field autoComplete="email" label="Email" name="email" onChange={setForm} type="email" value={form.email} />
+          <Field
+            autoComplete="new-password"
+            label="Password"
+            name="password"
+            onChange={setForm}
+            type="password"
+            value={form.password}
+          />
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
           <button className="btn-primary w-full" disabled={loading} type="submit">
             {loading ? "Creating..." : "Register"}
@@ -49,7 +63,7 @@ export default function Register() {
   );
 }
 
-function Field({ label, name, onChange, type, value }) {
+function Field({ autoComplete, label, name, onChange, type, value }) {
   return (
     <div>
       <label className="label" htmlFor={name}>
@@ -57,6 +71,7 @@ function Field({ label, name, onChange, type, value }) {
       </label>
       <input
         className="input"
+        autoComplete={autoComplete}
         id={name}
         minLength={name === "password" ? 8 : undefined}
         onChange={(event) => onChange((current) => ({ ...current, [name]: event.target.value }))}

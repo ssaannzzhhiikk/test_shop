@@ -28,8 +28,15 @@ export default function Login() {
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to view your profile.">
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <Field label="Email" name="email" onChange={setForm} type="email" value={form.email} />
-        <Field label="Password" name="password" onChange={setForm} type="password" value={form.password} />
+        <Field autoComplete="email" label="Email" name="email" onChange={setForm} type="email" value={form.email} />
+        <Field
+          autoComplete="current-password"
+          label="Password"
+          name="password"
+          onChange={setForm}
+          type="password"
+          value={form.password}
+        />
         {error ? <p className="text-sm text-red-700">{error}</p> : null}
         <button className="btn-primary w-full" disabled={loading} type="submit">
           {loading ? "Signing in..." : "Login"}
@@ -45,7 +52,7 @@ export default function Login() {
   );
 }
 
-function Field({ label, name, onChange, type, value }) {
+function Field({ autoComplete, label, name, onChange, type, value }) {
   return (
     <div>
       <label className="label" htmlFor={name}>
@@ -53,6 +60,7 @@ function Field({ label, name, onChange, type, value }) {
       </label>
       <input
         className="input"
+        autoComplete={autoComplete}
         id={name}
         onChange={(event) => onChange((current) => ({ ...current, [name]: event.target.value }))}
         required
